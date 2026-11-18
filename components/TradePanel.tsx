@@ -145,7 +145,7 @@ export function TradePanel({ pda, onTraded }: { pda: string; onTraded?: () => vo
               {busy ? "Claiming…" : `Claim ${(won / 1e6).toFixed(2)} ${USDC_LABEL}`}
             </button>
           ) : (
-            <p className="text-sm text-muted">{pos.yes + pos.no > 0 ? "No winning tokens to claim." : "You didn't hold a position here."}</p>
+            <p className="text-sm text-muted">{pos.yes + pos.no > 0 ? "No winning tokens to claim." : "Nothing left to claim here."}</p>
           )}
         </div>
       ) : s.expired ? (
