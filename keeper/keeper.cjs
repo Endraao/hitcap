@@ -209,8 +209,12 @@ async function resolveDue(client, reg) {
   for (const m of reg.markets) {
     if (m.resolved || now() < m.endTs) continue;
     try {
+      // Read the oracle FIRST, so the outcome is fixed before anything else runs.
       const { cap, price } = await capNow(m.pool);
       const side = cap > m.strike ? "yes" : "no";
+      // The pm-AMM refuses withdrawals once a market is resolved, so the keeper
+      // pulls its liquidity out between expiry (no more trading) and resolution.
+      await withdrawAll(client, new PublicKey(m.pda));
       const sig = await client.send.resolveMarket(new PublicKey(m.pda), side);
       m.resolved = true;
       m.outcome = side;
@@ -232,16 +236,20 @@ async function resolveDue(client, reg) {
   }
 }
 
-async function recycle(client, reg, owner) {
+async function withdrawAll(client, market) {
+  try {
+    const lp = await client.fetchLpPosition(market, client.walletPubkey());
+    if (lp && !lp.shares.isZero()) await client.send.withdrawLiquidity(market, lp.shares);
+  } catch (e) {
+    log(`withdraw ${market.toBase58().slice(0, 6)}: ${String(e.message || e).split("\n")[0]}`);
+  }
+}
+
+/** After resolution: LP residuals + the winning side of what the keeper withdrew, back to USDC. */
+async function recycle(client, reg) {
   for (const m of reg.markets) {
     if (!m.resolved || m.recycled) continue;
     const market = new PublicKey(m.pda);
-    try {
-      const lp = await client.fetchLpPosition(market, owner);
-      if (lp && !lp.shares.isZero()) await client.send.withdrawLiquidity(market, lp.shares);
-    } catch (e) {
-      log(`withdraw #${m.id}: ${String(e.message || e).split("\n")[0]}`);
-    }
     try {
       await client.send.claimLpResiduals(market);
     } catch {}
@@ -334,7 +342,7 @@ async function main() {
   for (;;) {
     const jobs = [
       ["resolve", () => resolveDue(client, reg)],
-      ["recycle", () => recycle(client, reg, kp.publicKey)],
+      ["recycle", () => recycle(client, reg)],
       ["open", () => openNew(client, conn, reg, kp.publicKey)],
     ];
     for (const [name, job] of jobs) {
