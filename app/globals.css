@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #07090f;
+  --panel: #0e1220;
+  --panel-2: #141a2c;
+  --line: #222b44;
+  --text: #e8ecf6;
+  --muted: #8a93ab;
+  --brand: #ffd23f;
+  --yes: #22d47b;
+  --no: #ff5c6c;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-brand: var(--brand);
+  --color-yes: var(--yes);
+  --color-no: var(--no);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: radial-gradient(1200px 600px at 50% -200px, #1a1f3a 0%, var(--bg) 60%) fixed, var(--bg);
+  color: var(--text);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
