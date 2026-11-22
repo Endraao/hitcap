@@ -32,9 +32,9 @@ const GECKO = "https://api.geckoterminal.com/api/v2/networks/solana";
 /** What the keeper opens. Each "kind" is one question per token. */
 const KINDS = {
   // "Higher in 1 hour?" — strike = mcap right now, so it opens at ~50%.
-  hour: { durationSecs: 3600, strikeMult: 1, liquidity: 100, every: 3600, maxOpen: 3 },
+  hour: { durationSecs: 3600, strikeMult: 1, liquidity: 100, every: 3600, maxOpen: 2 },
   // "2x in 24 hours?" — strike = 2x mcap, opens at whatever the model says.
-  moon: { durationSecs: 86400, strikeMult: 2, liquidity: 150, every: 6 * 3600, maxOpen: 3 },
+  moon: { durationSecs: 86400, strikeMult: 2, liquidity: 150, every: 12 * 3600, maxOpen: 2 },
 };
 const ROUND_MS = 60_000;
 const MIN_LIQ_USD = 40_000; // ignore thin pools: their price is easy to push around
